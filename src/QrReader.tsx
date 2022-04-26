@@ -9,7 +9,9 @@ interface Props {
 export function QrReader(props: Props) {
   return (
     <ReactQrReader
-      constraints={{}}
+      constraints={{
+        facingMode: 'environment',
+      }}
       onResult={(result) => {
         if (!!result) {
           props.onText(result.getText());

@@ -71,9 +71,15 @@ function App() {
   let content = <CircularProgress />
 
   if (!did)
-    content = <QrReader onText={(text) => setQrData(text)} />;
+    content = <>
+      <p>Scan QR-Code</p>
+      <QrReader onText={(text) => setQrData(text)} />
+    </>;
   else if (responseMessage)
-    content = <span>{responseMessage}</span>
+    content = <>
+      <h1>Thank you!</h1>
+      <span>{responseMessage}</span>
+    </>
   else if (form)
     content = <>
       <JsonForms
@@ -84,16 +90,17 @@ function App() {
         cells={materialCells}
         readonly={true}
       />
-      <div>
-        <Button variant="contained" color="primary" onClick={() => connect('send')}>Send</Button>
-        <Button variant="contained" color="secondary" onClick={() => connect('cancel')}>Cancel</Button>
+      <div className="Button-Bar">
+        <Button className="Button" variant="contained" color="primary" onClick={() => connect('send')}>Send</Button>
+        <Button className="Button" variant="contained" color="secondary" onClick={() => connect('cancel')}>Cancel</Button>
       </div>
     </>
   else if (formData && !form && !isLoading)
-    content = <span>Could not render form</span>
+    content = <p>Could not render form</p>
 
   return (
     <div className="App">
+      {!form ? <h1>OwnYourData Form</h1> : undefined}
       {content}
     </div>
   );

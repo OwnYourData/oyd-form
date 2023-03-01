@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { QrReader } from './QrReader';
 import { JsonForms } from '@jsonforms/react';
 import {
   materialRenderers,
@@ -10,18 +9,16 @@ import './App.css';
 import { Vaultifier, VaultifierWeb } from 'vaultifier/dist/main';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import TextField from '@material-ui/core/TextField';
 
 function App() {
   const [vaultifier, setVaultifier] = useState<Vaultifier>();
 
-  const [did, setQrData] = useState<string | undefined>();
+  const [schemaDri, setSchemaDri] = useState<string | undefined>();
   const [form, setForm] = useState<SoyaForm | undefined>(undefined);
 
-  const [jsonData, setJsonData] = useState<any>(undefined);
-  const [formData, setFormData] = useState<any>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [responseMessage, setResponseMessage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     (async () => {
@@ -35,73 +32,50 @@ function App() {
     })();
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      if (vaultifier && did && !form) {
-        setIsLoading(true);
+  const fetchForm = async () => {
+    if (vaultifier && schemaDri) {
+      setIsLoading(true);
 
-        try {
-          const { data: jsonData } = await vaultifier.get(`/api/read_qr/${did}`, true);
+      try {
+        const soya = new Soya();
+        const soyaForm = await soya.getForm(await soya.pull(schemaDri));
 
-          const soya = new Soya();
-          const soyaForm = await soya.getForm(await soya.pull(jsonData.schema_dri));
+        setForm(soyaForm);
+      } catch { }
 
-          setForm(soyaForm);
-          setJsonData(jsonData);
-          setFormData(jsonData.content);
-        } catch { }
-
-        setIsLoading(false);
-      }
-    })();
-  }, [did, form, vaultifier]);
-
-  const connect = async (action: string) => {
-    if (!vaultifier || !jsonData.id)
-      return;
-
-    const { data } = await vaultifier.post('/api/connect', true, {
-      action,
-      id: jsonData.id,
-    });
-
-    setResponseMessage(data.message);
+      setIsLoading(false);
+    }
   }
 
-  let content = <CircularProgress />
-
-  if (!did)
+  let content: JSX.Element;
+  if (isLoading)
+    content = <CircularProgress />;
+  else
     content = <>
-      <p>Scan QR-Code</p>
-      <QrReader onText={(text) => setQrData(text)} />
-    </>;
-  else if (responseMessage)
-    content = <>
-      <h1>Thank you!</h1>
-      <span>{responseMessage}</span>
-    </>
-  else if (form)
-    content = <>
-      <JsonForms
-        schema={form.schema}
-        uischema={form.ui}
-        data={formData}
-        renderers={materialRenderers}
-        cells={materialCells}
-        readonly={true}
+      <TextField
+        id="outlined-controlled"
+        label="SOyA Schema DRI"
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          setSchemaDri(event.target.value);
+        }}
       />
-      <div className="Button-Bar">
-        <Button className="Button" variant="contained" color="primary" onClick={() => connect('send')}>Send</Button>
-        <Button className="Button" variant="contained" color="secondary" onClick={() => connect('cancel')}>Cancel</Button>
-      </div>
-    </>
-  else if (formData && !form && !isLoading)
-    content = <p>Could not render form</p>
+      <Button className="Button" variant="contained" color="primary" onClick={() => fetchForm()}>Load Form</Button>
+    </>;
 
   return (
     <div className="App">
-      {!form ? <h1>OwnYourData Form</h1> : undefined}
+      <h1>OwnYourData SOyA-Forms</h1>
       {content}
+      {
+        form ?
+          <JsonForms
+            schema={form.schema}
+            uischema={form.ui}
+            data={{}}
+            renderers={materialRenderers}
+            cells={materialCells}
+          /> : undefined
+      }
     </div>
   );
 }

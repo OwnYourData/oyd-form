@@ -59,7 +59,6 @@ function App() {
   else
     content = <>
       <TextField
-        id="outlined-controlled"
         label="SOyA Schema DRI"
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setSchemaDri(event.target.value);
@@ -67,7 +66,6 @@ function App() {
         value={schemaDri}
       />
       <TextField
-        id="outlined-controlled"
         label="Tag"
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setTag(event.target.value);
@@ -75,7 +73,6 @@ function App() {
         value={tag}
       />
       <TextField
-        id="outlined-controlled"
         label="Language"
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setLanguage(event.target.value);

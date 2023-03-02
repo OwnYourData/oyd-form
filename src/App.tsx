@@ -15,6 +15,9 @@ function App() {
   const [vaultifier, setVaultifier] = useState<Vaultifier>();
 
   const [schemaDri, setSchemaDri] = useState<string | undefined>();
+  const [tag, setTag] = useState<string | undefined>();
+  const [language, setLanguage] = useState<string | undefined>();
+
   const [form, setForm] = useState<SoyaForm | undefined>(undefined);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -38,7 +41,10 @@ function App() {
 
       try {
         const soya = new Soya();
-        const soyaForm = await soya.getForm(await soya.pull(schemaDri));
+        const soyaForm = await soya.getForm(await soya.pull(schemaDri), {
+          language,
+          tag,
+        });
 
         setForm(soyaForm);
       } catch { }
@@ -58,6 +64,23 @@ function App() {
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setSchemaDri(event.target.value);
         }}
+        value={schemaDri}
+      />
+      <TextField
+        id="outlined-controlled"
+        label="Tag"
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          setTag(event.target.value);
+        }}
+        value={tag}
+      />
+      <TextField
+        id="outlined-controlled"
+        label="Language"
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          setLanguage(event.target.value);
+        }}
+        value={language}
       />
       <Button className="Button" variant="contained" color="primary" onClick={() => fetchForm()}>Load Form</Button>
     </>;

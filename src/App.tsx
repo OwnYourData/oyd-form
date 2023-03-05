@@ -10,6 +10,8 @@ import { Vaultifier, VaultifierWeb } from 'vaultifier/dist/main';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import TextField from '@material-ui/core/TextField';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
 
 function App() {
   const [vaultifier, setVaultifier] = useState<Vaultifier>();
@@ -19,6 +21,7 @@ function App() {
   const [language, setLanguage] = useState<string | undefined>();
 
   const [form, setForm] = useState<SoyaForm | undefined>(undefined);
+  const [data, setData] = useState<any>({});
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -88,13 +91,27 @@ function App() {
       {content}
       {
         form ?
-          <JsonForms
-            schema={form.schema}
-            uischema={form.ui}
-            data={{}}
-            renderers={materialRenderers}
-            cells={materialCells}
-          /> : undefined
+          <>
+            <JsonForms
+              schema={form.schema}
+              uischema={form.ui}
+              data={data}
+              renderers={materialRenderers}
+              cells={materialCells}
+              onChange={({ errors, data }) => setData(data)}
+            />
+            <h2>Data</h2>
+            <Card>
+              <CardContent>
+                <code>
+                  <pre>
+                    {JSON.stringify(data, null, 2)}
+                  </pre>
+                </code>
+              </CardContent>
+            </Card>
+          </>
+          : undefined
       }
     </div>
   );

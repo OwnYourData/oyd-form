@@ -1,6 +1,6 @@
 {
   "name": "oyd-form",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
     "@jsonforms/core": "^2.5.2",
@@ -23,7 +23,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "sh ./scripts/deploy.sh"
+    "deploy": "sh ./scripts/deploy.sh",
+    "docker": "npm run build && docker build -t oydeu/oyd-forms ."
   },
   "eslintConfig": {
     "extends": [

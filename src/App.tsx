@@ -12,6 +12,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import TextField from '@material-ui/core/TextField';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
+import TextArea from '@material-ui/core/TextareaAutosize';
 
 function App() {
   const [vaultifier, setVaultifier] = useState<Vaultifier>();

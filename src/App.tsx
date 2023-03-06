@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { JsonForms } from '@jsonforms/react';
 import {
   materialRenderers,
@@ -22,23 +22,11 @@ function App() {
 
   const [form, setForm] = useState<SoyaForm | undefined>(undefined);
   const [data, setData] = useState<any>({});
+  const [textData, setTextData] = useState<string>('');
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-
-  useEffect(() => {
-    (async () => {
-      const vaultifierWeb = await VaultifierWeb.create();
-      await vaultifierWeb.initialize();
-
-      if (!vaultifierWeb.vaultifier)
-        throw new Error('Vaultifier could not be initialized');
-
-      setVaultifier(vaultifierWeb.vaultifier);
-    })();
-  }, []);
-
-  const fetchForm = async () => {
+  const fetchForm = useCallback(async () => {
     if (vaultifier && schemaDri) {
       setIsLoading(true);
 
@@ -54,7 +42,39 @@ function App() {
 
       setIsLoading(false);
     }
-  }
+  }, [language, schemaDri, tag, vaultifier]);
+
+  useEffect(() => {
+    (async () => {
+      const vaultifierWeb = await VaultifierWeb.create();
+      await vaultifierWeb.initialize();
+
+      if (!vaultifierWeb.vaultifier)
+        throw new Error('Vaultifier could not be initialized');
+
+      setVaultifier(vaultifierWeb.vaultifier);
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { searchParams } = new URL(window.location.href);
+
+        const data = searchParams.get('data');
+        if (data)
+          try {
+            setData(JSON.parse(decodeURIComponent(data)));
+          } catch { }
+
+        setSchemaDri(searchParams.get('schemaDri') ?? undefined);
+        setTag(searchParams.get('tag') ?? undefined);
+        setLanguage(searchParams.get('language') ?? undefined);
+
+        fetchForm();
+      } catch { }
+    })();
+  }, [fetchForm]);
 
   let content: JSX.Element;
   if (isLoading)
@@ -98,16 +118,27 @@ function App() {
               data={data}
               renderers={materialRenderers}
               cells={materialCells}
-              onChange={({ errors, data }) => setData(data)}
+              onChange={({ errors, data }) => {
+                setData(data);
+                setTextData(JSON.stringify(data, null, 2))
+              }}
             />
             <h2>Data</h2>
             <Card>
               <CardContent>
-                <code>
-                  <pre>
-                    {JSON.stringify(data, null, 2)}
-                  </pre>
-                </code>
+                <TextArea
+                  value={textData}
+                  style={{ 'width': '100%' }}
+                  onChange={(e) => {
+                    const text = e.target.value;
+                    setTextData(text);
+
+                    try {
+                      const data = JSON.parse(text);
+                      setData(data);
+                    } catch { }
+                  }}
+                />
               </CardContent>
             </Card>
           </>

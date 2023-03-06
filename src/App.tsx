@@ -15,11 +15,12 @@ import CardContent from '@material-ui/core/CardContent';
 import TextArea from '@material-ui/core/TextareaAutosize';
 
 function App() {
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [vaultifier, setVaultifier] = useState<Vaultifier>();
 
-  const [schemaDri, setSchemaDri] = useState<string | undefined>();
-  const [tag, setTag] = useState<string | undefined>();
-  const [language, setLanguage] = useState<string | undefined>();
+  const [schemaDri, setSchemaDri] = useState<string>('');
+  const [tag, setTag] = useState<string>('');
+  const [language, setLanguage] = useState<string>('');
 
   const [form, setForm] = useState<SoyaForm | undefined>(undefined);
   const [data, setData] = useState<any>({});
@@ -43,7 +44,14 @@ function App() {
 
       setIsLoading(false);
     }
-  }, [language, schemaDri, tag, vaultifier]);
+  }, [vaultifier, schemaDri, language, tag]);
+
+  useEffect(() => {
+    if (isInitialized)
+      return;
+
+    fetchForm();
+  }, [fetchForm, isInitialized]);
 
   useEffect(() => {
     (async () => {
@@ -54,28 +62,22 @@ function App() {
         throw new Error('Vaultifier could not be initialized');
 
       setVaultifier(vaultifierWeb.vaultifier);
-    })();
-  }, []);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const { searchParams } = new URL(window.location.href);
+      const { searchParams } = new URL(window.location.href);
 
-        const data = searchParams.get('data');
+      const data = searchParams.get('data');
         if (data)
           try {
-            setData(JSON.parse(decodeURIComponent(data)));
-          } catch { }
+          setData(JSON.parse(decodeURIComponent(data)));
+        } catch { }
 
-        setSchemaDri(searchParams.get('schemaDri') ?? undefined);
-        setTag(searchParams.get('tag') ?? undefined);
-        setLanguage(searchParams.get('language') ?? undefined);
+      setSchemaDri(searchParams.get('schemaDri') ?? '');
+      setTag(searchParams.get('tag') ?? '');
+      setLanguage(searchParams.get('language') ?? '');
 
-        fetchForm();
-      } catch { }
+      setIsInitialized(true);
     })();
-  }, [fetchForm]);
+  }, []);
 
   let content: JSX.Element;
   if (isLoading)

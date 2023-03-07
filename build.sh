@@ -12,6 +12,9 @@ PLATFORM="linux/amd64"
 BUILD_X86=true
 DOCKERFILE="./Dockerfile"
 
+npm i
+npm run build
+
 while [ $# -gt 0 ]; do
     case "$1" in
         --clean*)

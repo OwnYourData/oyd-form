@@ -4,7 +4,7 @@ import {
   materialRenderers,
   materialCells,
 } from '@jsonforms/material-renderers';
-import { Soya, SoyaForm } from 'soya-js'
+import { Soya, SoyaForm, SoyaFormOptions } from 'soya-js'
 import './App.css';
 import { Vaultifier, VaultifierWeb } from 'vaultifier/dist/main';
 import Button from '@material-ui/core/Button';
@@ -34,10 +34,12 @@ function App() {
 
       try {
         const soya = new Soya();
-        const soyaForm = await soya.getForm(await soya.pull(schemaDri), {
+        const formOptions: SoyaFormOptions | undefined = language || tag ? {
           language,
           tag,
-        });
+        } : undefined;
+
+        const soyaForm = await soya.getForm(await soya.pull(schemaDri), formOptions);
 
         setForm(soyaForm);
       } catch { }

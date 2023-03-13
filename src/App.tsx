@@ -13,6 +13,30 @@ import TextField from '@material-ui/core/TextField';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import TextArea from '@material-ui/core/TextareaAutosize';
+import { customRenderers } from './components';
+
+// TODO: Diese React-App so zur Verfügung stellen, dass man sie entweder standalone aufrufen kann
+// oder dass man sie über einen iFrame aufrufen kann und über die iFrame messages mit JSON-Daten füttern kann
+// bzw. diese Messages auch dazu genutzt werden um veränderte Form-Daten wieder an den Client zurück zu geben
+
+// Die Form messages müssen vermutlich auch das Window-Resizing handhaben usw.
+
+// Das Ganze können wir dann als iFrame im DataBud integrieren
+
+// Aber zuerst muss das Client-Fenster dem Parent mitteilen, dass das Rendering fertig ist
+// auch über eine Message
+// Die Schema DRI für das Form kann direkt über die URL-Parameter mitgegeben werden
+
+// window.postMessage()
+// window.addEventListener("message", (event) => {});
+
+// TODO: Mehrfachauswahl-Dropdown wie in der alten Variante soll auch in der React
+// Version zur Verfügung stehen (siehe UsagePolicy https://databud.ownyourdata.unterholzer.dev/?PIA_URL=https%3A%2F%2Fplayground.data-container.net#/)
+
+const allRenderers = [
+  ...customRenderers,
+  ...materialRenderers,
+];
 
 function App() {
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
@@ -31,6 +55,7 @@ function App() {
   const fetchForm = useCallback(async () => {
     if (vaultifier && schemaDri) {
       setIsLoading(true);
+      setData({});
 
       try {
         const soya = new Soya();
@@ -68,8 +93,8 @@ function App() {
       const { searchParams } = new URL(window.location.href);
 
       const data = searchParams.get('data');
-        if (data)
-          try {
+      if (data)
+        try {
           setData(JSON.parse(decodeURIComponent(data)));
         } catch { }
 
@@ -121,7 +146,7 @@ function App() {
               schema={form.schema}
               uischema={form.ui}
               data={data}
-              renderers={materialRenderers}
+              renderers={allRenderers}
               cells={materialCells}
               onChange={({ errors, data }) => {
                 setData(data);
@@ -142,8 +167,7 @@ function App() {
                       const data = JSON.parse(text);
                       setData(data);
                     } catch { }
-                  }}
-                />
+                  }} />
               </CardContent>
             </Card>
           </>

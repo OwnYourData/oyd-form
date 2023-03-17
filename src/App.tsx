@@ -55,7 +55,6 @@ function App() {
   const fetchForm = useCallback(async () => {
     if (vaultifier && schemaDri) {
       setIsLoading(true);
-      setData({});
 
       try {
         const soya = new Soya();
@@ -105,6 +104,17 @@ function App() {
       setIsInitialized(true);
     })();
   }, []);
+
+  const permalink = new URL(window.location.href);
+  const { searchParams } = permalink;
+  if (schemaDri)
+    searchParams.set('schemaDri', schemaDri);
+  if (tag)
+    searchParams.set('tag', tag);
+  if (language)
+    searchParams.set('language', language);
+  if (data)
+    searchParams.set('data', JSON.stringify(data));
 
   let content: JSX.Element;
   if (isLoading)
@@ -173,6 +183,12 @@ function App() {
           </>
           : undefined
       }
+      <h2>Permalink</h2>
+      <Card>
+        <CardContent>
+          {permalink.toString()}
+        </CardContent>
+      </Card>
     </div>
   );
 }
